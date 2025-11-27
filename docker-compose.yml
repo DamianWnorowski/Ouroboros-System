@@ -1,0 +1,235 @@
+# OUROBOROS SYSTEM - DOCKER COMPOSE
+# Production-ready multi-service orchestration
+# NO HARDCODED VALUES - All from .env
+
+version: '3.8'
+
+services:
+  # ========================================
+  # CORE ORCHESTRATOR
+  # ========================================
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ouroboros/orchestrator:latest
+    container_name: ouroboros-orchestrator
+    restart: unless-stopped
+    environment:
+      - CONSUL_HOST=${CONSUL_HOST:-consul}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
+      - NEO4J_HOST=${NEO4J_HOST:-neo4j}
+      - PROMETHEUS_PORT=${PROMETHEUS_PORT:-8000}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - consul
+      - redis
+      - postgres
+      - neo4j
+    networks:
+      - ouroboros-net
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ========================================
+  # SERVICE DISCOVERY (Consul)
+  # ========================================
+  consul:
+    image: hashicorp/consul:1.17
+    container_name: ouroboros-consul
+    restart: unless-stopped
+    command: agent -server -ui -bootstrap-expect=1 -client=0.0.0.0
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+    networks:
+      - ouroboros-net
+    volumes:
+      - consul-data:/consul/data
+
+  # ========================================
+  # CACHING (Redis Cluster)
+  # ========================================
+  redis:
+    image: redis:7-alpine
+    container_name: ouroboros-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - ouroboros-net
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+
+  # ========================================
+  # DATABASE (PostgreSQL)
+  # ========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: ouroboros-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-ouroboros}
+      - POSTGRES_USER=${POSTGRES_USER:-ouroboros}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    networks:
+      - ouroboros-net
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  # ========================================
+  # KNOWLEDGE GRAPH (Neo4j)
+  # ========================================
+  neo4j:
+    image: neo4j:5-community
+    container_name: ouroboros-neo4j
+    restart: unless-stopped
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
+      - NEO4J_server_memory_heap_max__size=2G
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    networks:
+      - ouroboros-net
+    volumes:
+      - neo4j-data:/data
+
+  # ========================================
+  # MESSAGE QUEUE (RabbitMQ)
+  # ========================================
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: ouroboros-rabbitmq
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-ouroboros}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - ouroboros-net
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+  # ========================================
+  # STREAMING (Kafka)
+  # ========================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: ouroboros-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - ouroboros-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: ouroboros-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+    ports:
+      - "9092:9092"
+    networks:
+      - ouroboros-net
+
+  # ========================================
+  # MONITORING - Prometheus
+  # ========================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ouroboros-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    networks:
+      - ouroboros-net
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+
+  # ========================================
+  # MONITORING - Grafana
+  # ========================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ouroboros-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    ports:
+      - "3000:3000"
+    networks:
+      - ouroboros-net
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  # ========================================
+  # TRACING - Jaeger
+  # ========================================
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: ouroboros-jaeger
+    restart: unless-stopped
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+    networks:
+      - ouroboros-net
+
+  # ========================================
+  # SEARCH (Elasticsearch)
+  # ========================================
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: ouroboros-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    networks:
+      - ouroboros-net
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+
+networks:
+  ouroboros-net:
+    driver: bridge
+
+volumes:
+  consul-data:
+  redis-data:
+  postgres-data:
+  neo4j-data:
+  rabbitmq-data:
+  prometheus-data:
+  grafana-data:
+  elasticsearch-data:
