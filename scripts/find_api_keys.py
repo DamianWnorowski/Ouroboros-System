@@ -393,12 +393,13 @@ Examples:
     
     finder = APIKeyFinder()
     
-    print("╔═══════════════════════════════════════════════════════════════╗")
-    print("║              API KEY FINDER - SYSTEM SCAN                     ║")
-    print("╠═══════════════════════════════════════════════════════════════╣")
-    print("║  ⚠️  WARNING: This will search for API keys on your system  ║")
-    print("║      Review results carefully and rotate any exposed keys!   ║")
-    print("╚═══════════════════════════════════════════════════════════════╝\n")
+    print("=" * 63)
+    print("API KEY FINDER - SYSTEM SCAN")
+    print("=" * 63)
+    print("WARNING: This will search for API keys on your system")
+    print("Review results carefully and rotate any exposed keys!")
+    print("=" * 63)
+    print()
     
     found_keys = []
     
@@ -434,17 +435,18 @@ Examples:
         finder.save_keys_json(found_keys, Path(args.json))
     
     # Print summary
-    print("\n╔═══════════════════════════════════════════════════════════════╗")
-    print("║                    SEARCH COMPLETE                            ║")
-    print("╠═══════════════════════════════════════════════════════════════╣")
-    print(f"║  Keys Found:        {len(found_keys):<45} ║")
-    print(f"║  Files Scanned:     {finder.scanned_files:,<43} ║")
-    print(f"║  Directories:       {finder.scanned_dirs:,<43} ║")
-    print(f"║  Report Saved:      {str(output_path):<43} ║")
-    print("╠═══════════════════════════════════════════════════════════════╣")
-    print("║  ⚠️  IMPORTANT: Review the report and rotate any exposed    ║")
-    print("║      keys immediately! Do NOT commit keys to Git!            ║")
-    print("╚═══════════════════════════════════════════════════════════════╝\n")
+    print("\n" + "=" * 63)
+    print("SEARCH COMPLETE")
+    print("=" * 63)
+    print(f"Keys Found:        {len(found_keys)}")
+    print(f"Files Scanned:     {finder.scanned_files:,}")
+    print(f"Directories:       {finder.scanned_dirs:,}")
+    print(f"Report Saved:      {output_path}")
+    print("=" * 63)
+    print("IMPORTANT: Review the report and rotate any exposed")
+    print("keys immediately! Do NOT commit keys to Git!")
+    print("=" * 63)
+    print()
     
     if found_keys:
         print("📋 Key Types Found:")
