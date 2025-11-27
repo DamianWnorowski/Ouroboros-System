@@ -53,7 +53,7 @@ async def main():
         print(engine.generate_report())
     
     if args.json:
-        engine.export_json(args.json)
+        await engine.export_json(args.json)
         print(f"\nResults exported to: {args.json}")
     
     # Exit with error code if any failures
