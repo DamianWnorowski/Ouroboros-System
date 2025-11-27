@@ -1,0 +1,46 @@
+# Prometheus alert rules for Ouroboros System
+
+groups:
+  - name: ouroboros_alerts
+    interval: 30s
+    rules:
+      # Agent health alerts
+      - alert: AgentDown
+        expr: ouroboros_health{component=~".+"} < 0.5
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Agent {{ $labels.component }} is down"
+          description: "Agent {{ $labels.component }} health is {{ $value }}"
+
+      # High agent count
+      - alert: TooManyAgents
+        expr: ouroboros_agents > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Too many agents running"
+          description: "{{ $value }} agents are currently active"
+
+      # Healing events
+      - alert: ExcessiveHealing
+        expr: rate(ouroboros_healing_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Excessive healing events"
+          description: "{{ $value }} healing events per second"
+
+      # Orchestration latency
+      - alert: HighOrchestrationLatency
+        expr: histogram_quantile(0.95, ouroboros_orch_latency_bucket) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High orchestration latency"
+          description: "95th percentile latency is {{ $value }}s"
+

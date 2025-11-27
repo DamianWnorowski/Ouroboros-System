@@ -233,6 +233,9 @@ aiohttp>=3.9.1
 requests>=2.31.0
 websockets>=12.0
 
+# Template Engine (for Alpha Generator)
+jinja2>=3.1.2
+
 # GraphQL
 strawberry-graphql>=0.214.0
 graphene>=3.3
@@ -273,6 +276,11 @@ ansible>=8.6.1
 terraform>=1.6.5
 
 # ============================================
+# TEMPLATING
+# ============================================
+jinja2>=3.1.2
+
+# ============================================
 # UTILITIES
 # ============================================
 click>=8.1.7
@@ -280,4 +288,3 @@ rich>=13.7.0
 tqdm>=4.66.1
 pyyaml>=6.0.1
 toml>=0.10.2
-jinja2>=3.1.2

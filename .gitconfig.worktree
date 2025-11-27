@@ -1,0 +1,26 @@
+# Git Configuration for Optimal Worktree Usage
+# Add these to your global .gitconfig or repository .git/config
+
+[worktree]
+    # Never automatically prune worktrees
+    pruneExpire = never
+
+[fetch]
+    # Automatically prune remote-tracking branches
+    prune = true
+    pruneTags = true
+
+# Worktree aliases
+[alias]
+    wt-list = worktree list
+    wt-add = worktree add
+    wt-remove = worktree remove
+    wt-prune = worktree prune
+    wt-move = worktree move
+    wt-lock = worktree lock
+    wt-unlock = worktree unlock
+
+# Optional: Set default worktree directory
+# [worktree]
+#     defaultDirectory = worktrees
+

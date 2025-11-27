@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ouroboros-config
+  namespace: ouroboros
+data:
+  CONSUL_HOST: "consul"
+  CONSUL_PORT: "8500"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  POSTGRES_HOST: "postgres"
+  POSTGRES_PORT: "5432"
+  NEO4J_HOST: "neo4j"
+  NEO4J_PORT: "7687"
+  LOG_LEVEL: "INFO"
+  ENVIRONMENT: "production"
+
