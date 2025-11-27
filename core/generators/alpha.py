@@ -193,18 +193,14 @@ class {{ class_name }}(BaseGenerator):
             self.generator_dna.append(dna)
     
     def load_dna_from_file(self, filepath: str):
-        """Load Generator DNA from YAML or JSON file"""
+        """Load Generator DNA from YAML or JSON file (synchronous)"""
         path = Path(filepath)
         if not path.exists():
             raise FileNotFoundError(f"DNA file not found: {filepath}")
         
-        # Use async file I/O if available
-        if AIOFILES_AVAILABLE:
-            async with aiofiles.open(path, 'r', encoding='utf-8') as f:
-                content = await f.read()
-        else:
-            with open(path, 'r', encoding='utf-8') as f:
-                content = f.read()
+        # Use synchronous file I/O (async version available as load_dna_from_file_async)
+        with open(path, 'r', encoding='utf-8') as f:
+            content = f.read()
             if path.suffix in ['.yaml', '.yml']:
                 data = yaml.safe_load(f)
             else:
