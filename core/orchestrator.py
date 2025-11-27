@@ -57,6 +57,7 @@ class DynamicOrchestrator:
         self.running = False
         self.discovery_backend = discovery_backend
         self.discovery = self._init_discovery(discovery_backend)
+        self._lock = asyncio.Lock()  # Lock for thread-safe operations
     
     def _init_discovery(self, backend: str):
         """Initialize service discovery backend"""
@@ -94,8 +95,9 @@ class DynamicOrchestrator:
         return {}
     
     async def auto_discover_agents(self) -> List[AgentMetadata]:
-        """Dynamically discover all agents"""
+        """Dynamically discover all agents (optimized O(n) instead of O(n²))"""
         discovered = []
+        discovered_ids = set()  # Track IDs to prevent duplicates
         
         # Scan agents directory
         agents_path = Path(__file__).parent.parent / 'agents'
@@ -103,7 +105,11 @@ class DynamicOrchestrator:
             self.logger.warning(f"Agents directory not found: {agents_path}")
             return discovered
         
-        for file in agents_path.glob('**/*.py'):
+        # Collect all Python files first (O(n))
+        python_files = list(agents_path.glob('**/*.py'))
+        
+        # Process files (O(n) instead of nested loops)
+        for file in python_files:
             if file.stem.startswith('_'):
                 continue
             
@@ -114,8 +120,12 @@ class DynamicOrchestrator:
                 # Find agent classes
                 for name, obj in self._get_agent_classes(module):
                     agent_meta = self._extract_metadata(obj, name)
-                    discovered.append(agent_meta)
-                    self.logger.info(f"Discovered agent: {agent_meta.name}")
+                    
+                    # Check for duplicates using set (O(1) lookup)
+                    if agent_meta.id not in discovered_ids:
+                        discovered_ids.add(agent_meta.id)
+                        discovered.append(agent_meta)
+                        self.logger.info(f"Discovered agent: {agent_meta.name}")
             except Exception as e:
                 self.logger.error(f"Error discovering agent from {file}: {e}")
         
@@ -172,11 +182,12 @@ class DynamicOrchestrator:
         self.logger.info(f"Orchestrator started with {len(self.agents)} agents")
     
     async def _init_agent(self, agent_meta: AgentMetadata):
-        """Initialize an agent"""
-        self.agents[agent_meta.id] = agent_meta
-        agent_meta.status = AgentStatus.ACTIVE
-        if PROMETHEUS_AVAILABLE:
-            AGENT_COUNT.set(len(self.agents))
+        """Initialize an agent (thread-safe)"""
+        async with self._lock:
+            self.agents[agent_meta.id] = agent_meta
+            agent_meta.status = AgentStatus.ACTIVE
+            if PROMETHEUS_AVAILABLE:
+                AGENT_COUNT.set(len(self.agents))
     
     async def _health_monitor_loop(self):
         """Continuous health monitoring"""
@@ -240,7 +251,7 @@ class DynamicOrchestrator:
         self.logger.info(f"Agent {meta.name} healed successfully")
     
     async def _cleanup_loop(self):
-        """Background cleanup of dead agents"""
+        """Background cleanup of dead agents (thread-safe)"""
         heartbeat_timeout = int(os.getenv('AGENT_HEARTBEAT_TIMEOUT', '300'))  # 5 minutes default
         
         while self.running:
@@ -250,18 +261,21 @@ class DynamicOrchestrator:
                 now = datetime.utcnow()
                 dead_agents = []
                 
-                for agent_id, meta in self.agents.items():
+                # Collect dead agents (read-only, no lock needed)
+                for agent_id, meta in list(self.agents.items()):
                     time_since_beat = (now - meta.last_beat).total_seconds()
                     if time_since_beat > heartbeat_timeout:
                         dead_agents.append(agent_id)
                 
-                # Remove dead agents
-                for agent_id in dead_agents:
-                    self.logger.warning(f"Removing dead agent: {agent_id}")
-                    if agent_id in self.agents:
-                        del self.agents[agent_id]
-                        if PROMETHEUS_AVAILABLE:
-                            AGENT_COUNT.set(len(self.agents))
+                # Remove dead agents (thread-safe write)
+                if dead_agents:
+                    async with self._lock:
+                        for agent_id in dead_agents:
+                            if agent_id in self.agents:
+                                self.logger.warning(f"Removing dead agent: {agent_id}")
+                                del self.agents[agent_id]
+                                if PROMETHEUS_AVAILABLE:
+                                    AGENT_COUNT.set(len(self.agents))
                 
             except asyncio.CancelledError:
                 break

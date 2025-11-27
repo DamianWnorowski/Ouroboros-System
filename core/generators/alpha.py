@@ -198,7 +198,13 @@ class {{ class_name }}(BaseGenerator):
         if not path.exists():
             raise FileNotFoundError(f"DNA file not found: {filepath}")
         
-        with open(path, 'r', encoding='utf-8') as f:
+        # Use async file I/O if available
+        if AIOFILES_AVAILABLE:
+            async with aiofiles.open(path, 'r', encoding='utf-8') as f:
+                content = await f.read()
+        else:
+            with open(path, 'r', encoding='utf-8') as f:
+                content = f.read()
             if path.suffix in ['.yaml', '.yml']:
                 data = yaml.safe_load(f)
             else:

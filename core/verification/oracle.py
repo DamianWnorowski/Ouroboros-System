@@ -16,11 +16,18 @@ import os
 import hashlib
 import json
 import yaml
+import asyncio
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Any, Literal
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import IntEnum
+
+try:
+    import aiofiles
+    AIOFILES_AVAILABLE = True
+except ImportError:
+    AIOFILES_AVAILABLE = False
 
 
 class VerificationLevel(IntEnum):
@@ -153,9 +160,15 @@ class OracleVerificationEngine:
         
         for py_file in python_files[:10]:  # Limit for performance
             try:
-                with open(py_file, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    compile(content, str(py_file), 'exec')
+                # Use async file I/O if available
+                if AIOFILES_AVAILABLE:
+                    async with aiofiles.open(py_file, 'r', encoding='utf-8') as f:
+                        content = await f.read()
+                else:
+                    with open(py_file, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                
+                compile(content, str(py_file), 'exec')
                 
                 self.results.append(VerificationResult(
                     component=str(py_file.relative_to(self.base_path)),
@@ -180,9 +193,15 @@ class OracleVerificationEngine:
         
         for yaml_file in yaml_files:
             try:
-                with open(yaml_file, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    yaml.safe_load(content)
+                # Use async file I/O if available
+                if AIOFILES_AVAILABLE:
+                    async with aiofiles.open(yaml_file, 'r', encoding='utf-8') as f:
+                        content = await f.read()
+                else:
+                    with open(yaml_file, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                
+                yaml.safe_load(content)
                 
                 self.results.append(VerificationResult(
                     component=str(yaml_file.relative_to(self.base_path)),
@@ -208,8 +227,14 @@ class OracleVerificationEngine:
         if k8s_dir.exists():
             for yaml_file in k8s_dir.glob('*.yaml'):
                 try:
-                    with open(yaml_file, 'r', encoding='utf-8') as f:
-                        content = yaml.safe_load(f)
+                    # Use async file I/O if available
+                    if AIOFILES_AVAILABLE:
+                        async with aiofiles.open(yaml_file, 'r', encoding='utf-8') as f:
+                            content_str = await f.read()
+                        content = yaml.safe_load(content_str)
+                    else:
+                        with open(yaml_file, 'r', encoding='utf-8') as f:
+                            content = yaml.safe_load(f)
                     
                     errors = []
                     required_fields = ['apiVersion', 'kind', 'metadata']
@@ -246,8 +271,13 @@ class OracleVerificationEngine:
         
         for py_file in python_files:
             try:
-                with open(py_file, 'r', encoding='utf-8') as f:
-                    lines = f.readlines()
+                # Use async file I/O if available
+                if AIOFILES_AVAILABLE:
+                    async with aiofiles.open(py_file, 'r', encoding='utf-8') as f:
+                        lines = await f.readlines()
+                else:
+                    with open(py_file, 'r', encoding='utf-8') as f:
+                        lines = f.readlines()
                     file_imports = set()
                     
                     for line in lines:
