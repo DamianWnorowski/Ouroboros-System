@@ -214,7 +214,7 @@ class APIKeyFinder:
     
     def search_common_locations(self) -> List[Dict]:
         """Search common locations first"""
-        print("🔍 Searching common locations...")
+        print("Searching common locations...")
         found = []
         
         for location in COMMON_LOCATIONS:
@@ -228,18 +228,18 @@ class APIKeyFinder:
     
     def search_all_drives(self, max_depth: int = 5) -> List[Dict]:
         """Search all drives (with limited depth for performance)"""
-        print("🔍 Searching all drives (this may take a while)...")
+        print("Searching all drives (this may take a while)...")
         drives = self.get_all_drives()
         all_found = []
         
         for drive in drives:
-            print(f"  📁 Searching {drive}...")
+            print(f"  Searching {drive}...")
             try:
                 found = self.search_directory(drive, max_depth=max_depth)
                 all_found.extend(found)
-                print(f"    ✅ Found {len(found)} potential keys")
+                print(f"    Found {len(found)} potential keys")
             except Exception as e:
-                print(f"    ⚠️  Error searching {drive}: {e}")
+                print(f"    Error searching {drive}: {e}")
         
         return all_found
     
@@ -306,7 +306,7 @@ class APIKeyFinder:
         # Save to file
         if output_file:
             output_file.write_text(report, encoding='utf-8')
-            print(f"\n✅ Report saved to: {output_file}")
+            print(f"\nReport saved to: {output_file}")
         
         return report
     
@@ -329,7 +329,7 @@ class APIKeyFinder:
         }
         
         output_file.write_text(json.dumps(data, indent=2), encoding='utf-8')
-        print(f"✅ Keys summary saved to: {output_file}")
+        print(f"Keys summary saved to: {output_file}")
 
 
 def main():
@@ -407,14 +407,14 @@ Examples:
         # Search specific directory
         target_dir = Path(args.dir)
         if target_dir.exists():
-            print(f"🔍 Searching directory: {target_dir}")
+            print(f"Searching directory: {target_dir}")
             found_keys = finder.search_directory(target_dir, max_depth=10)
         else:
-            print(f"❌ Directory not found: {target_dir}")
+            print(f"Directory not found: {target_dir}")
             return
     elif args.project:
         # Search project directory
-        print("🔍 Searching project directory...")
+        print("Searching project directory...")
         found_keys = finder.search_directory(finder.project_root, max_depth=10)
     elif args.all_drives:
         # Search all drives
@@ -449,7 +449,7 @@ Examples:
     print()
     
     if found_keys:
-        print("📋 Key Types Found:")
+        print("Key Types Found:")
         by_type = {}
         for key_info in found_keys:
             key_type = key_info['type']
