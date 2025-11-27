@@ -409,14 +409,15 @@ class OracleVerificationEngine:
             if not level_results:
                 continue
             
-            report += f"║  {level_names[level].ljust(71)}║\n"
+            report += f"{level_names[level]}\n"
+            report += "-" * 80 + "\n"
             
             for r in level_results[:10]:  # Limit per level
-                icon = '✅' if r.status == 'pass' else '⚠️' if r.status == 'warn' else '❌'
+                icon = '[PASS]' if r.status == 'pass' else '[WARN]' if r.status == 'warn' else '[FAIL]'
                 msg = f"{icon} {r.component}: {r.message}"
-                report += f"║    {msg[:67].ljust(67)}║\n"
+                report += f"  {msg[:76]}\n"
         
-        report += "╚═══════════════════════════════════════════════════════════════════════════╝\n"
+        report += "=" * 80 + "\n"
         
         return report
     
