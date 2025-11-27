@@ -1,0 +1,108 @@
+{
+  "generation_id": "gen_20251127_142838",
+  "timestamp": "2025-11-27T14:28:38.229600",
+  "stats": {
+    "timestamp": "2025-11-27T14:28:30.435491",
+    "project_root": "C:\\Users\\Ouroboros\\.cursor\\worktrees\\Ouroboros-System\\FtRNp",
+    "overall_score": 85,
+    "security_score": 75,
+    "performance_score": 80,
+    "reliability_score": 90,
+    "python_files": 33,
+    "test_files": 7,
+    "key_components": {
+      "core/orchestrator.py": true,
+      "core/api.py": true,
+      "core/auth.py": true,
+      "core/validation.py": true,
+      "core/verification/oracle.py": true,
+      "core/generators/alpha.py": true
+    },
+    "recent_improvements": [
+      "JWT Authentication",
+      "Rate Limiting",
+      "Input Validation",
+      "Async File I/O",
+      "Algorithm Optimization",
+      "Race Condition Fixes",
+      "Connection Pooling",
+      "Caching Layer",
+      "API Key Security Tools"
+    ]
+  },
+  "tests": {
+    "success": false,
+    "returncode": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.14.0, pytest-9.0.1, pluggy-1.6.0 -- C:\\Python314\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\Ouroboros\\.cursor\\worktrees\\Ouroboros-System\\FtRNp\nconfigfile: pytest.ini\nplugins: anyio-4.11.0, langsmith-0.4.49, cov-7.0.0\ncollecting ... collected 11 items\n\ntests/integration/test_orchestrator_integration.py::test_orchestrator_with_agent FAILED [  9%]\ntests/integration/test_orchestrator_integration.py::test_agent_health_monitoring FAILED [ 18%]\ntests/integration/test_orchestrator_integration.py::test_self_healing FAILED [ 27%]\ntests/unit/test_orchestrator.py::test_orchestrator_initialization FAILED [ 36%]\ntests/unit/test_orchestrator.py::test_orchestrator_start_stop FAILED     [ 45%]\ntests/unit/test_orchestrator.py::test_agent_discovery FAILED             [ 54%]\ntests/unit/test_verification.py::test_oracle_initialization FAILED       [ 63%]\ntests/unit/test_verification.py::test",
+    "stderr": "C:\\Users\\Ouroboros\\AppData\\Roaming\\Python\\Python314\\site-packages\\langsmith\\schemas.py:22: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.\n  from pydantic.v1 import (\n"
+  },
+  "performance": {
+    "async_io": true,
+    "connection_pooling": true,
+    "caching": true,
+    "algorithm_optimization": true,
+    "race_conditions_fixed": true
+  },
+  "intent": {
+    "production_ready": true,
+    "security_hardened": true,
+    "performance_optimized": true,
+    "reliability_enhanced": true,
+    "documentation_complete": true,
+    "next_priorities": [
+      "Increase test coverage to 80%+",
+      "Integrate connection pooling in actual usage",
+      "Integrate caching in verification engine",
+      "Load testing",
+      "Performance benchmarking"
+    ]
+  },
+  "recommended_actions": [
+    {
+      "type": "add_tests",
+      "priority": "HIGH",
+      "description": "Increase test coverage",
+      "safe": true
+    },
+    {
+      "type": "integrate_pooling",
+      "priority": "MEDIUM",
+      "description": "Integrate connection pooling in actual operations",
+      "safe": true
+    },
+    {
+      "type": "integrate_caching",
+      "priority": "MEDIUM",
+      "description": "Integrate caching in verification engine",
+      "safe": true
+    },
+    {
+      "type": "load_testing",
+      "priority": "MEDIUM",
+      "description": "Add load testing framework",
+      "safe": true
+    }
+  ],
+  "applied_actions": {
+    "applied": [
+      {
+        "action": "add_tests",
+        "status": "recorded"
+      },
+      {
+        "action": "integrate_pooling",
+        "status": "recorded"
+      },
+      {
+        "action": "integrate_caching",
+        "status": "recorded"
+      },
+      {
+        "action": "load_testing",
+        "status": "recorded"
+      }
+    ],
+    "skipped": [],
+    "errors": []
+  }
+}
