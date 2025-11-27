@@ -1,0 +1,92 @@
+# Example Generator DNA Specification
+# Alpha Generator - Example Configuration
+
+id: example-generator
+name: Example Generator
+system: ExampleForge
+codename: Demo
+description: An example generator that demonstrates Alpha Generator capabilities
+version: 1.0.0
+category: infrastructure
+
+outputs:
+  - path: "output/{provider.id}.py"
+    template: main_template
+    description: "Main Python module for provider"
+    perTechnique: false
+  
+  - path: "output/{provider.id}/techniques/{technique.id}.py"
+    template: technique_template
+    description: "Technique implementation"
+    perTechnique: true
+
+templates:
+  - id: main_template
+    content: |
+      """
+      Generated module for {{ provider.name }}
+      System: {{ provider.system or 'Unknown' }}
+      """
+      
+      class {{ pascal(provider.id) }}Provider:
+          """{{ provider.description or 'No description' }}"""
+          
+          def __init__(self):
+              self.id = "{{ provider.id }}"
+              self.name = "{{ provider.name }}"
+              self.version = "{{ provider.version }}"
+          
+          def get_info(self):
+              return {
+                  'id': self.id,
+                  'name': self.name,
+                  'version': self.version,
+              }
+    description: "Main provider template"
+  
+  - id: technique_template
+    content: |
+      """
+      Technique: {{ technique.name }}
+      ID: {{ technique.id }}
+      """
+      
+      def {{ camel(technique.id) }}(config):
+          """Execute {{ technique.name }}"""
+          # Implementation for {{ technique.id }}
+          return {
+              'technique': '{{ technique.id }}',
+              'provider': '{{ provider.id }}',
+              'result': 'success',
+          }
+    description: "Technique implementation template"
+
+configSchema:
+  type: object
+  properties:
+    outputDir:
+      type: string
+      default: "./generated"
+      description: "Output directory for generated files"
+    namespace:
+      type: string
+      default: "ouroboros"
+      description: "Namespace for generated code"
+    includeTests:
+      type: boolean
+      default: true
+      description: "Include test files"
+
+dependencies: []
+
+helpers:
+  - name: format_docstring
+    implementation: |
+      def format_docstring(text):
+          if not text:
+              return 'No description'
+          return text.strip().replace('\n', ' ')
+    description: "Format text for docstring"
+
+hooks: []
+

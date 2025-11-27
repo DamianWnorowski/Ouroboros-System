@@ -1,0 +1,53 @@
+{
+  "dashboard": {
+    "title": "Ouroboros System Dashboard",
+    "tags": ["ouroboros", "monitoring"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Agent Health",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "ouroboros_health",
+            "legendFormat": "{{component}}"
+          }
+        ]
+      },
+      {
+        "title": "Active Agents",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "ouroboros_agents",
+            "legendFormat": "Agents"
+          }
+        ]
+      },
+      {
+        "title": "Healing Events",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ouroboros_healing_total[5m])",
+            "legendFormat": "Healing Rate"
+          }
+        ]
+      },
+      {
+        "title": "Orchestration Latency",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, ouroboros_orch_latency_bucket)",
+            "legendFormat": "95th Percentile"
+          }
+        ]
+      }
+    ],
+    "refresh": "10s",
+    "schemaVersion": 27,
+    "version": 1
+  }
+}
+
