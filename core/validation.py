@@ -66,8 +66,8 @@ class GeneratorDNARequest(BaseModel):
     system: str = Field(..., min_length=1, max_length=100)
     codename: str = Field(..., min_length=1, max_length=50)
     description: str = Field(..., min_length=1, max_length=1000)
-    version: str = Field(..., regex=r'^\d+\.\d+\.\d+$')
-    category: str = Field(..., regex=r'^(infrastructure|sdk|documentation|testing|monitoring|deployment)$')
+    version: str = Field(..., pattern=r'^\d+\.\d+\.\d+$')
+    category: str = Field(..., pattern=r'^(infrastructure|sdk|documentation|testing|monitoring|deployment)$')
     outputs: List[Dict[str, Any]] = Field(default_factory=list)
     templates: List[Dict[str, Any]] = Field(default_factory=list)
     config_schema: Optional[Dict[str, Any]] = None
