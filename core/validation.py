@@ -61,7 +61,7 @@ class AgentUpdateRequest(BaseModel):
 
 class GeneratorDNARequest(BaseModel):
     """Request model for generator DNA"""
-    id: str = Field(..., min_length=1, max_length=100, regex=r'^[a-z][a-z0-9-]*$')
+    id: str = Field(..., min_length=1, max_length=100, pattern=r'^[a-z][a-z0-9-]*$')
     name: str = Field(..., min_length=1, max_length=200)
     system: str = Field(..., min_length=1, max_length=100)
     codename: str = Field(..., min_length=1, max_length=50)
