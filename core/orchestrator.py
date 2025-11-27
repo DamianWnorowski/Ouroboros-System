@@ -210,14 +210,20 @@ class DynamicOrchestrator:
     async def _self_healing_loop(self):
         """Auto-healing failed agents"""
         while self.running:
-            for agent_id, meta in self.agents.items():
-                if meta.health < 0.5 and meta.auto_heal:
-                    self.logger.warning(f"Healing agent: {meta.name}")
-                    await self._heal_agent(agent_id)
-                    if PROMETHEUS_AVAILABLE:
-                        HEALING_EVENTS.inc()
-            
-            await asyncio.sleep(10)
+            try:
+                for agent_id, meta in list(self.agents.items()):  # Use list() to avoid modification during iteration
+                    if meta.health < 0.5 and meta.auto_heal:
+                        self.logger.warning(f"Healing agent: {meta.name}")
+                        await self._heal_agent(agent_id)
+                        if PROMETHEUS_AVAILABLE:
+                            HEALING_EVENTS.inc()
+                
+                await asyncio.sleep(10)
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                self.logger.error(f"Self-healing loop error: {e}")
+                await asyncio.sleep(10)
     
     async def _heal_agent(self, agent_id: str):
         """Heal a failed agent"""
