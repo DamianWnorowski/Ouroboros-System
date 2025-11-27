@@ -16,11 +16,18 @@ import os
 import hashlib
 import json
 import yaml
+import asyncio
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Any, Literal
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import IntEnum
+
+try:
+    import aiofiles
+    AIOFILES_AVAILABLE = True
+except ImportError:
+    AIOFILES_AVAILABLE = False
 
 
 class VerificationLevel(IntEnum):
@@ -153,9 +160,15 @@ class OracleVerificationEngine:
         
         for py_file in python_files[:10]:  # Limit for performance
             try:
-                with open(py_file, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    compile(content, str(py_file), 'exec')
+                # Use async file I/O if available
+                if AIOFILES_AVAILABLE:
+                    async with aiofiles.open(py_file, 'r', encoding='utf-8') as f:
+                        content = await f.read()
+                else:
+                    with open(py_file, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                
+                compile(content, str(py_file), 'exec')
                 
                 self.results.append(VerificationResult(
                     component=str(py_file.relative_to(self.base_path)),
@@ -180,9 +193,15 @@ class OracleVerificationEngine:
         
         for yaml_file in yaml_files:
             try:
-                with open(yaml_file, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    yaml.safe_load(content)
+                # Use async file I/O if available
+                if AIOFILES_AVAILABLE:
+                    async with aiofiles.open(yaml_file, 'r', encoding='utf-8') as f:
+                        content = await f.read()
+                else:
+                    with open(yaml_file, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                
+                yaml.safe_load(content)
                 
                 self.results.append(VerificationResult(
                     component=str(yaml_file.relative_to(self.base_path)),
@@ -208,8 +227,14 @@ class OracleVerificationEngine:
         if k8s_dir.exists():
             for yaml_file in k8s_dir.glob('*.yaml'):
                 try:
-                    with open(yaml_file, 'r', encoding='utf-8') as f:
-                        content = yaml.safe_load(f)
+                    # Use async file I/O if available
+                    if AIOFILES_AVAILABLE:
+                        async with aiofiles.open(yaml_file, 'r', encoding='utf-8') as f:
+                            content_str = await f.read()
+                        content = yaml.safe_load(content_str)
+                    else:
+                        with open(yaml_file, 'r', encoding='utf-8') as f:
+                            content = yaml.safe_load(f)
                     
                     errors = []
                     required_fields = ['apiVersion', 'kind', 'metadata']
@@ -246,8 +271,13 @@ class OracleVerificationEngine:
         
         for py_file in python_files:
             try:
-                with open(py_file, 'r', encoding='utf-8') as f:
-                    lines = f.readlines()
+                # Use async file I/O if available
+                if AIOFILES_AVAILABLE:
+                    async with aiofiles.open(py_file, 'r', encoding='utf-8') as f:
+                        lines = await f.readlines()
+                else:
+                    with open(py_file, 'r', encoding='utf-8') as f:
+                        lines = f.readlines()
                     file_imports = set()
                     
                     for line in lines:
@@ -301,7 +331,7 @@ class OracleVerificationEngine:
     
     async def _reverse_engineer(self) -> None:
         """L6: Reverse engineer architecture"""
-        stats = self._compute_statistics()
+        stats = await self._compute_statistics()
         
         self.results.append(VerificationResult(
             component='architecture',
@@ -312,15 +342,25 @@ class OracleVerificationEngine:
             details=stats.__dict__,
         ))
     
-    def _compute_statistics(self) -> ArchitectureStatistics:
-        """Compute architecture statistics"""
+    async def _compute_statistics(self) -> ArchitectureStatistics:
+        """Compute architecture statistics (async)"""
         python_files = list(self.base_path.rglob('*.py'))
         total_lines = 0
+        max_complexity = 0
         
-        for py_file in python_files:
+        for py_file in python_files[:100]:  # Limit for performance
             try:
-                with open(py_file, 'r', encoding='utf-8') as f:
-                    total_lines += len(f.readlines())
+                if AIOFILES_AVAILABLE:
+                    async with aiofiles.open(py_file, 'r', encoding='utf-8') as f:
+                        lines = await f.readlines()
+                        line_count = len(lines)
+                else:
+                    with open(py_file, 'r', encoding='utf-8') as f:
+                        lines = f.readlines()
+                        line_count = len(lines)
+                
+                total_lines += line_count
+                max_complexity = max(max_complexity, line_count)
             except Exception:
                 pass
         
@@ -332,7 +372,7 @@ class OracleVerificationEngine:
             techniques=0,
             templates=0,
             avg_lines_per_file=total_lines / max(len(python_files), 1),
-            max_complexity=max([len(open(f, 'r', encoding='utf-8').readlines()) for f in python_files[:10]], default=0),
+            max_complexity=max_complexity,
         )
     
     def _compute_hash(self, content: str) -> str:
@@ -345,13 +385,14 @@ class OracleVerificationEngine:
         warned = len([r for r in self.results if r.status == 'warn'])
         failed = len([r for r in self.results if r.status == 'fail'])
         
+        padding = 75 - len(str(len(self.results))) - len(str(passed)) - len(str(warned)) - len(str(failed))
         report = f"""
-╔═══════════════════════════════════════════════════════════════════════════╗
-║              PHANTOM GENESIS: ORACLE VERIFICATION REPORT                  ║
-║              System: IntegrityForge | Codename: Oracle                    ║
-╠═══════════════════════════════════════════════════════════════════════════╣
-║  Total: {len(self.results)} | ✅ Pass: {passed} | ⚠️ Warn: {warned} | ❌ Fail: {failed}{' ' * (75 - len(str(len(self.results))) - len(str(passed)) - len(str(warned)) - len(str(failed))))}║
-╠═══════════════════════════════════════════════════════════════════════════╣
+================================================================================
+PHANTOM GENESIS: ORACLE VERIFICATION REPORT
+System: IntegrityForge | Codename: Oracle
+================================================================================
+Total: {len(self.results)} | Pass: {passed} | Warn: {warned} | Fail: {failed}{' ' * padding}
+================================================================================
 """
         
         level_names = [
@@ -369,14 +410,15 @@ class OracleVerificationEngine:
             if not level_results:
                 continue
             
-            report += f"║  {level_names[level].ljust(71)}║\n"
+            report += f"{level_names[level]}\n"
+            report += "-" * 80 + "\n"
             
             for r in level_results[:10]:  # Limit per level
-                icon = '✅' if r.status == 'pass' else '⚠️' if r.status == 'warn' else '❌'
+                icon = '[PASS]' if r.status == 'pass' else '[WARN]' if r.status == 'warn' else '[FAIL]'
                 msg = f"{icon} {r.component}: {r.message}"
-                report += f"║    {msg[:67].ljust(67)}║\n"
+                report += f"  {msg[:76]}\n"
         
-        report += "╚═══════════════════════════════════════════════════════════════════════════╝\n"
+        report += "=" * 80 + "\n"
         
         return report
     

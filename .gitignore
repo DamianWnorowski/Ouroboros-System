@@ -100,3 +100,10 @@ secrets/
 *.key
 *.crt
 
+# API Key Reports (NEVER COMMIT THESE!)
+api_keys_report.md
+*_api_keys*.md
+*_api_keys*.json
+*.keys
+*.secrets
+

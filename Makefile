@@ -93,5 +93,19 @@ chain-all: ## Run full command chain (all phases)
 auto-chain: ## Run auto-recursive chain AI
 	python scripts/auto-chain.py
 
+onboard: ## Complete onboarding setup
+	@if [ -f scripts/onboard.sh ]; then \
+		chmod +x scripts/onboard.sh && ./scripts/onboard.sh; \
+	else \
+		echo "Onboarding script not found"; \
+	fi
+
+health: ## Quick health check
+	@if [ -f scripts/health-check.sh ]; then \
+		chmod +x scripts/health-check.sh && ./scripts/health-check.sh; \
+	else \
+		python -c "from core.orchestrator import DynamicOrchestrator; print('OK')"; \
+	fi
+
 all: clean install test verify ## Clean, install, test, and verify
 
