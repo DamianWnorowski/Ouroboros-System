@@ -45,9 +45,18 @@ async def main():
     # Initialize Alpha Generator
     alpha = AlphaGenerator()
     
-    # Load DNA
+    # Load DNA (async)
     try:
-        alpha.load_dna_from_file(args.dna)
+        dna_data = await alpha.load_dna_from_file(args.dna)
+        # Convert to GeneratorDNA if needed
+        from .alpha import GeneratorDNA
+        if isinstance(dna_data, dict):
+            dna = GeneratorDNA(**dna_data)
+            alpha.load_generator_dna(dna)
+        elif isinstance(dna_data, list):
+            alpha.load_generator_dna([GeneratorDNA(**d) for d in dna_data])
+        else:
+            alpha.load_generator_dna(dna_data)
     except Exception as e:
         print(f"Error loading DNA file: {e}")
         sys.exit(1)

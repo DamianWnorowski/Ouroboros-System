@@ -331,7 +331,7 @@ class OracleVerificationEngine:
     
     async def _reverse_engineer(self) -> None:
         """L6: Reverse engineer architecture"""
-        stats = self._compute_statistics()
+        stats = await self._compute_statistics()
         
         self.results.append(VerificationResult(
             component='architecture',
@@ -342,15 +342,25 @@ class OracleVerificationEngine:
             details=stats.__dict__,
         ))
     
-    def _compute_statistics(self) -> ArchitectureStatistics:
-        """Compute architecture statistics"""
+    async def _compute_statistics(self) -> ArchitectureStatistics:
+        """Compute architecture statistics (async)"""
         python_files = list(self.base_path.rglob('*.py'))
         total_lines = 0
+        max_complexity = 0
         
-        for py_file in python_files:
+        for py_file in python_files[:100]:  # Limit for performance
             try:
-                with open(py_file, 'r', encoding='utf-8') as f:
-                    total_lines += len(f.readlines())
+                if AIOFILES_AVAILABLE:
+                    async with aiofiles.open(py_file, 'r', encoding='utf-8') as f:
+                        lines = await f.readlines()
+                        line_count = len(lines)
+                else:
+                    with open(py_file, 'r', encoding='utf-8') as f:
+                        lines = f.readlines()
+                        line_count = len(lines)
+                
+                total_lines += line_count
+                max_complexity = max(max_complexity, line_count)
             except Exception:
                 pass
         
@@ -362,7 +372,7 @@ class OracleVerificationEngine:
             techniques=0,
             templates=0,
             avg_lines_per_file=total_lines / max(len(python_files), 1),
-            max_complexity=max([len(open(f, 'r', encoding='utf-8').readlines()) for f in python_files[:10]], default=0),
+            max_complexity=max_complexity,
         )
     
     def _compute_hash(self, content: str) -> str:
