@@ -385,13 +385,14 @@ class OracleVerificationEngine:
         warned = len([r for r in self.results if r.status == 'warn'])
         failed = len([r for r in self.results if r.status == 'fail'])
         
+        padding = 75 - len(str(len(self.results))) - len(str(passed)) - len(str(warned)) - len(str(failed))
         report = f"""
-╔═══════════════════════════════════════════════════════════════════════════╗
-║              PHANTOM GENESIS: ORACLE VERIFICATION REPORT                  ║
-║              System: IntegrityForge | Codename: Oracle                    ║
-╠═══════════════════════════════════════════════════════════════════════════╣
-║  Total: {len(self.results)} | ✅ Pass: {passed} | ⚠️ Warn: {warned} | ❌ Fail: {failed}{' ' * (75 - len(str(len(self.results))) - len(str(passed)) - len(str(warned)) - len(str(failed))))}║
-╠═══════════════════════════════════════════════════════════════════════════╣
+================================================================================
+PHANTOM GENESIS: ORACLE VERIFICATION REPORT
+System: IntegrityForge | Codename: Oracle
+================================================================================
+Total: {len(self.results)} | Pass: {passed} | Warn: {warned} | Fail: {failed}{' ' * padding}
+================================================================================
 """
         
         level_names = [
