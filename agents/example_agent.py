@@ -3,8 +3,9 @@ Example Agent Implementation
 Demonstrates how to create a custom agent
 """
 
+import logging
 from typing import Dict, Any
-from .base_agent import BaseAgent, AgentConfig
+from agents.base_agent import BaseAgent, AgentConfig
 
 
 class ExampleAgent(BaseAgent):
@@ -29,6 +30,7 @@ class ExampleAgent(BaseAgent):
                 capabilities=self.__capabilities__,
             )
         super().__init__(config)
+        self.logger = logging.getLogger(__name__)
         self.task_count = 0
     
     async def initialize(self):

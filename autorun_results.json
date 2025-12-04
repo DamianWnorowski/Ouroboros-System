@@ -1,0 +1,91 @@
+{
+  "config": {
+    "auto_loop_enabled": true,
+    "generation_interval_seconds": 300,
+    "max_cycles": 2,
+    "apply_safe_actions": false,
+    "tests_enabled": true,
+    "benchmark_enabled": false,
+    "health_checks_enabled": true,
+    "fitness_threshold": 0.95,
+    "consecutive_failures_threshold": 3
+  },
+  "cycles_completed": 2,
+  "total_duration_seconds": 378.521374,
+  "results_history": [
+    {
+      "cycle": 1,
+      "timestamp": "2025-11-27T16:27:54.197795+00:00",
+      "phases": {
+        "tests": {
+          "success": true,
+          "exit_code": 0,
+          "tests_passed": 34,
+          "tests_failed": 0,
+          "output": "130-134\ncore\\validation.py                      64      0   100%\ncore\\verification\\__init__.py            2      2     0%   8-10\ncore\\verification\\cli.py                29     29     0%   5-68\ncore\\verification\\oracle.py            208    208     0%   15-457\n------------------------------------------------------------------\nTOTAL                                 1236    904    27%\nCoverage HTML written to dir htmlcov\n====================== 34 passed, 21 warnings in 19.14s =======================\n"
+        },
+        "health": {
+          "success": true,
+          "output": "=== Integration Test Suite ===\n\nTesting verification caching...\nFirst verification call (uncached)...\nOracle Verification Engine Starting...\n   Base Path: .\n   Max Depth: L1\n\n.2f\nSecond verification call (should be cached)...\nOracle Verification Engine Starting...\n   Base Path: .\n   Max Depth: L1\n\n.2f\nResults are identical - caching works!\nSecond call wasn't significantly faster - possible cache miss\n\nTesting connection pooling...\nConnection pool manager created\nOrchestrator initialized connection pools\n\n=== Results ===\nCaching Integration: PASS\nPooling Integration: PASS\n\nAll integrations working correctly!\n",
+          "caching_ok": true,
+          "pooling_ok": true
+        },
+        "evolution": {
+          "cycles_analyzed": 0,
+          "trends": {
+            "note": "No cycles to analyze"
+          },
+          "suggestions": [
+            "Run more cycles to generate suggestions"
+          ],
+          "fitness_history": []
+        }
+      },
+      "duration_seconds": 38.700906,
+      "overall_fitness": 0.7
+    },
+    {
+      "cycle": 2,
+      "timestamp": "2025-11-27T16:33:32.902784+00:00",
+      "phases": {
+        "tests": {
+          "success": true,
+          "exit_code": 0,
+          "tests_passed": 34,
+          "tests_failed": 0,
+          "output": "130-134\ncore\\validation.py                      64      0   100%\ncore\\verification\\__init__.py            2      2     0%   8-10\ncore\\verification\\cli.py                29     29     0%   5-68\ncore\\verification\\oracle.py            208    208     0%   15-457\n------------------------------------------------------------------\nTOTAL                                 1236    904    27%\nCoverage HTML written to dir htmlcov\n====================== 34 passed, 21 warnings in 19.53s =======================\n"
+        },
+        "health": {
+          "success": true,
+          "output": "=== Integration Test Suite ===\n\nTesting verification caching...\nFirst verification call (uncached)...\nOracle Verification Engine Starting...\n   Base Path: .\n   Max Depth: L1\n\n.2f\nSecond verification call (should be cached)...\nOracle Verification Engine Starting...\n   Base Path: .\n   Max Depth: L1\n\n.2f\nResults are identical - caching works!\nSecond call wasn't significantly faster - possible cache miss\n\nTesting connection pooling...\nConnection pool manager created\nOrchestrator initialized connection pools\n\n=== Results ===\nCaching Integration: PASS\nPooling Integration: PASS\n\nAll integrations working correctly!\n",
+          "caching_ok": true,
+          "pooling_ok": true
+        },
+        "evolution": {
+          "cycles_analyzed": 1,
+          "trends": {
+            "fitness_trend": [
+              0.7
+            ],
+            "test_success_rate": 1.0,
+            "benchmark_success_rate": 0.0,
+            "improving": false
+          },
+          "suggestions": [
+            "Address benchmark failures - check performance regressions",
+            "System fitness not improving - consider architecture changes"
+          ],
+          "fitness_history": [
+            0.7
+          ]
+        }
+      },
+      "duration_seconds": 39.815195,
+      "overall_fitness": 0.7
+    }
+  ],
+  "final_summary": {
+    "end_time": "2025-11-27T16:34:12.718039+00:00",
+    "average_fitness": 0.7
+  }
+}

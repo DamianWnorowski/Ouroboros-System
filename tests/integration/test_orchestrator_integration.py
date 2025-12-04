@@ -3,6 +3,8 @@ Integration tests for orchestrator with agents
 """
 
 import pytest
+import asyncio
+from datetime import datetime, UTC
 from core.orchestrator import DynamicOrchestrator
 from agents.example_agent import ExampleAgent
 from agents.base_agent import AgentConfig
@@ -27,7 +29,7 @@ async def test_orchestrator_with_agent():
         capabilities=agent.get_capabilities(),
         status=AgentStatus.ACTIVE,
         health=1.0,
-        last_beat=datetime.utcnow(),
+        last_beat=datetime.now(UTC),
     )
     
     orchestrator.agents["example-agent"] = meta
@@ -65,7 +67,7 @@ async def test_self_healing():
         name="Failing Agent",
         status=AgentStatus.FAILED,
         health=0.3,  # Below threshold
-        last_beat=datetime.utcnow() - timedelta(minutes=2),
+        last_beat=datetime.now(UTC) - timedelta(minutes=2),
         auto_heal=True,
     )
     

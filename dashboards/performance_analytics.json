@@ -1,0 +1,50 @@
+{
+  "dashboard": {
+    "title": "Ouroboros Performance Analytics",
+    "tags": [
+      "ouroboros",
+      "performance",
+      "analytics"
+    ],
+    "timezone": "UTC",
+    "panels": [
+      {
+        "title": "Response Time Distribution",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "rate(ouroboros_response_time_seconds_bucket[5m])",
+            "legendFormat": "Response Time"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 16,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "ouroboros_error_rate",
+            "legendFormat": "Error Rate %"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 0
+        }
+      }
+    ],
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

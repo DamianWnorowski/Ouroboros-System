@@ -6,7 +6,7 @@ All generators inherit from this
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, UTC
 from pathlib import Path
 
 
@@ -27,7 +27,7 @@ class GeneratorContext:
     version: str = "0.1.0"
     environment: str = "development"
     output_dir: str = "./generated"
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     config: Dict[str, Any] = field(default_factory=dict)
 
 

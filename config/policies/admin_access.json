@@ -1,0 +1,21 @@
+{
+  "policy_id": "admin_access",
+  "name": "Administrator Access",
+  "description": "Full system access for administrators",
+  "security_level": "SecurityLevel.TOP_SECRET",
+  "allowed_principals": [
+    "admin_*"
+  ],
+  "forbidden_principals": [],
+  "allowed_actions": [
+    "*"
+  ],
+  "forbidden_actions": [],
+  "allowed_ips": [
+    "192.168.1.0/24",
+    "10.0.0.0/8"
+  ],
+  "forbidden_ips": [],
+  "allowed_hours": null,
+  "custom_conditions": []
+}

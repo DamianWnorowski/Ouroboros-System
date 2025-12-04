@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, List, Any, Optional
 import asyncio
 import os
-from datetime import datetime
+from datetime import datetime, UTC
 
 from .orchestrator import DynamicOrchestrator
 from .verification import OracleVerificationEngine
@@ -18,6 +18,17 @@ from .validation import (
     VerifyRequest, AgentCreateRequest, AgentUpdateRequest,
     PaginationParams, FilterParams, ErrorResponse
 )
+
+# Import caching for expensive operations
+try:
+    from .cache import cached
+    CACHING_AVAILABLE = True
+except ImportError:
+    CACHING_AVAILABLE = False
+    def cached(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
 
 app = FastAPI(
     title="Ouroboros System API",
@@ -63,7 +74,7 @@ async def root():
         "name": "Ouroboros System",
         "version": "0.1.0",
         "status": "running",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(UTC).isoformat()
     }
 
 
@@ -78,7 +89,7 @@ async def health():
         "status": "healthy" if orchestrator.running else "stopped",
         "agents": len(orchestrator.agents),
         "running": orchestrator.running,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(UTC).isoformat()
     }
 
 
@@ -159,46 +170,56 @@ async def get_agent(agent_id: str, request: Request):
     }
 
 
-@app.post("/verify")
-@rate_limit(max_requests=10, window=60)  # Lower limit for expensive operation
-@require_auth(roles=['user', 'admin'])
-async def verify_system(request: Request, verify_req: VerifyRequest):
-    """Run Oracle verification with input validation"""
-    try:
-        # Validate level
-        level = max(0, min(6, verify_req.level))
-        
-        # Use provided path or default
-        base_path = verify_req.path or "."
-        
-        engine = OracleVerificationEngine(base_path)
-        results = await engine.verify_all(max_level=level)
-        
-        passed = len([r for r in results if r.status == 'pass'])
-        warned = len([r for r in results if r.status == 'warn'])
-        failed = len([r for r in results if r.status == 'fail'])
-        
-        response = {
-            "level": level,
-            "total": len(results),
-            "passed": passed,
-            "warned": warned,
-            "failed": failed,
-            "results": [
-                {
-                    "component": r.component,
-                    "level": r.level,
-                    "status": r.status,
+@cached(ttl=300, key_prefix="verification")  # Cache for 5 minutes
+async def _run_verification(base_path: str, level: int) -> Dict[str, Any]:
+    """Run verification with caching"""
+    engine = OracleVerificationEngine(base_path)
+    results = await engine.verify_all(max_level=level)
+
+    passed = len([r for r in results if r.status == 'pass'])
+    warned = len([r for r in results if r.status == 'warn'])
+    failed = len([r for r in results if r.status == 'fail'])
+
+    return {
+        "level": level,
+        "total": len(results),
+        "passed": passed,
+        "warned": warned,
+        "failed": failed,
+        "results": [
+            {
+                "component": r.component,
+                "level": r.level,
+                "status": r.status,
                     "message": r.message,
                 }
                 for r in results
             ]
         }
-        
+
+
+@app.post("/verify")
+@rate_limit(max_requests=10, window=60)  # Lower limit for expensive operation
+@require_auth(roles=['user', 'admin'])
+async def verify_system(request: Request, verify_req: VerifyRequest):
+    """Run Oracle verification with input validation and caching"""
+    try:
+        # Validate level
+        level = max(0, min(6, verify_req.level))
+
+        # Use provided path or default
+        base_path = verify_req.path or "."
+
+        # Use cached verification
+        response = await _run_verification(base_path, level)
+
+        # Add cache status indicator
+        response["cached"] = CACHING_AVAILABLE
+
         if verify_req.export_json:
             # In production, save to file or return as downloadable
-            response["export_url"] = f"/verify/export/{datetime.utcnow().timestamp()}"
-        
+            response["export_url"] = f"/verify/export/{datetime.now(UTC).timestamp()}"
+
         return response
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -218,7 +239,7 @@ async def get_metrics(request: Request):
     return {
         "agents": len(orchestrator.agents),
         "running": orchestrator.running,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(UTC).isoformat()
     }
 
 

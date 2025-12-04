@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-11-28T02:12:10.399880+00:00",
+  "tests": {
+    "persistence_hive": {
+      "status": "failed",
+      "error": "SQLite objects created in a thread can only be used in that same thread. The object was created in thread id 62712 and this is thread id 27552."
+    },
+    "multi_ai": {
+      "status": "success",
+      "models_used": 1,
+      "cost": 0.00084475,
+      "quality": 0.8443162625914139
+    },
+    "fitness": {
+      "status": "failed",
+      "error": "name 'time_horizon_days' is not defined"
+    },
+    "deployment": {
+      "status": "success",
+      "history_count": 0
+    }
+  },
+  "summary": {
+    "total_tests": 4,
+    "successful_tests": 2,
+    "overall_score": 0.5,
+    "classification": "ADVANCED"
+  }
+}

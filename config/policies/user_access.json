@@ -1,0 +1,22 @@
+{
+  "policy_id": "user_access",
+  "name": "User Access",
+  "description": "Standard user access",
+  "security_level": "SecurityLevel.CONFIDENTIAL",
+  "allowed_principals": [
+    "user_*"
+  ],
+  "forbidden_principals": [],
+  "allowed_actions": [
+    "read",
+    "write"
+  ],
+  "forbidden_actions": [
+    "delete",
+    "admin_*"
+  ],
+  "allowed_ips": [],
+  "forbidden_ips": [],
+  "allowed_hours": null,
+  "custom_conditions": []
+}

@@ -1,0 +1,39 @@
+{
+  "benchmark_info": {
+    "timestamp": "2025-11-27T15:25:18.432610",
+    "python_version": "3.14.0 (tags/v3.14.0:ebf955d, Oct  7 2025, 10:15:03) [MSC v.1944 64 bit (AMD64)]",
+    "platform": "win32",
+    "cpu_count": 16,
+    "total_memory_mb": 32694.0390625
+  },
+  "orchestrator_startup": {
+    "startup_time_seconds": 5.316734313964844e-05,
+    "memory_used_mb": 0.0,
+    "timestamp": "2025-11-27T15:25:18.433221"
+  },
+  "agent_discovery": {
+    "num_agents": 5,
+    "discovery_time_seconds": 0.0002541542053222656,
+    "memory_used_mb": 0.01171875,
+    "agents_per_second": 19673.095684803004,
+    "timestamp": "2025-11-27T15:25:18.433603"
+  },
+  "task_execution": {
+    "num_tasks": 50,
+    "total_execution_time_seconds": 0.00022292137145996094,
+    "average_task_time_seconds": 4.458427429199219e-06,
+    "tasks_per_second": 224294.33155080213,
+    "memory_used_mb": 0.01171875,
+    "timestamp": "2025-11-27T15:25:18.433960"
+  },
+  "system_load": {
+    "duration_seconds": 30,
+    "tasks_completed": 2980,
+    "tasks_per_second": 99.31930161138578,
+    "average_memory_mb": 27.61881291946309,
+    "peak_memory_mb": 27.62890625,
+    "average_cpu_percent": 0.20939597315436242,
+    "peak_cpu_percent": 15.6,
+    "timestamp": "2025-11-27T15:25:48.438339"
+  }
+}

@@ -5,7 +5,8 @@ Base Agent Class - All agents inherit from this
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Set
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, UTC
+import logging
 
 
 @dataclass
@@ -28,8 +29,9 @@ class BaseAgent(ABC):
     def __init__(self, config: AgentConfig):
         self.config = config
         self.status = "initializing"
-        self.last_heartbeat = datetime.utcnow()
+        self.last_heartbeat = datetime.now(UTC)
         self.metrics: Dict[str, Any] = {}
+        self.logger = logging.getLogger(f"{self.__class__.__module__}.{self.__class__.__name__}")
     
     @abstractmethod
     async def initialize(self):
@@ -48,7 +50,7 @@ class BaseAgent(ABC):
     
     async def heartbeat(self):
         """Send heartbeat"""
-        self.last_heartbeat = datetime.utcnow()
+        self.last_heartbeat = datetime.now(UTC)
     
     def get_capabilities(self) -> Set[str]:
         """Get agent capabilities"""

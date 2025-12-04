@@ -5,7 +5,7 @@ JWT-based authentication with rate limiting
 
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Optional, Dict, List
 from functools import wraps
 from collections import defaultdict
@@ -66,8 +66,8 @@ class AuthManager:
         payload = {
             'user_id': user_id,
             'roles': roles,
-            'exp': datetime.utcnow() + timedelta(seconds=self.token_expiration),
-            'iat': datetime.utcnow()
+            'exp': datetime.now(UTC) + timedelta(seconds=self.token_expiration),
+            'iat': datetime.now(UTC)
         }
         
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)

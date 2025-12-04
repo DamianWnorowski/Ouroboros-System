@@ -1,0 +1,78 @@
+{
+  "dashboard": {
+    "title": "Ouroboros Elite System Overview",
+    "tags": [
+      "ouroboros",
+      "elite",
+      "monitoring"
+    ],
+    "timezone": "UTC",
+    "panels": [
+      {
+        "title": "System Resources",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "ouroboros_cpu_percent",
+            "legendFormat": "CPU %"
+          },
+          {
+            "expr": "ouroboros_memory_percent",
+            "legendFormat": "Memory %"
+          },
+          {
+            "expr": "ouroboros_disk_usage_percent",
+            "legendFormat": "Disk %"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "title": "Elite System Fitness",
+        "type": "singlestat",
+        "targets": [
+          {
+            "expr": "ouroboros_fitness_score",
+            "legendFormat": "Fitness Score"
+          }
+        ],
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "title": "Active Components",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "ouroboros_active_agents",
+            "legendFormat": "Active Agents"
+          },
+          {
+            "expr": "ouroboros_deployments_total",
+            "legendFormat": "Deployments"
+          }
+        ],
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "5s"
+  }
+}

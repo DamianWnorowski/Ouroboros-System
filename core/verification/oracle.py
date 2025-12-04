@@ -20,7 +20,7 @@ import asyncio
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Any, Literal
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import IntEnum
 
 try:
@@ -52,7 +52,7 @@ class VerificationResult:
     details: Optional[Dict[str, Any]] = None
     children: Optional[List['VerificationResult']] = None
     hash: Optional[str] = None
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
 
 @dataclass
@@ -107,7 +107,7 @@ class OracleVerificationEngine:
     
     async def verify_all(self, max_level: int = 6) -> List[VerificationResult]:
         """Run all verification levels up to max_level"""
-        print("🔮 Oracle Verification Engine Starting...")
+        print("Oracle Verification Engine Starting...")
         print(f"   Base Path: {self.base_path}")
         print(f"   Max Depth: L{max_level}\n")
         
@@ -425,7 +425,7 @@ Total: {len(self.results)} | Pass: {passed} | Warn: {warned} | Fail: {failed}{' 
     def export_json(self, filepath: Optional[str] = None) -> str:
         """Export results as JSON"""
         data = {
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(UTC).isoformat(),
             'base_path': str(self.base_path),
             'results': [
                 {

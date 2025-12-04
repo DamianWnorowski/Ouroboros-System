@@ -1,0 +1,35 @@
+groups:
+- name: ouroboros_alerts
+  rules:
+  - alert: HighCPUUsage
+    annotations:
+      description: CPU usage is above 90%
+      summary: High CPU usage detected
+    expr: ouroboros_cpu_percent > 90
+    for: 5m
+    labels:
+      severity: warning
+  - alert: HighMemoryUsage
+    annotations:
+      description: Memory usage is above 85%
+      summary: High memory usage detected
+    expr: ouroboros_memory_percent > 85
+    for: 5m
+    labels:
+      severity: warning
+  - alert: LowFitnessScore
+    annotations:
+      description: System fitness score is critically low
+      summary: Critical system health issue
+    expr: ouroboros_fitness_score < 0.5
+    for: 10m
+    labels:
+      severity: critical
+  - alert: HighErrorRate
+    annotations:
+      description: Error rate is above 5%
+      summary: High error rate detected
+    expr: ouroboros_error_rate > 0.05
+    for: 5m
+    labels:
+      severity: warning

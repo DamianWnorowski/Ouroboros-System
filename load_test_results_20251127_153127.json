@@ -1,0 +1,64 @@
+{
+  "test_info": {
+    "timestamp": "2025-11-27T15:30:05.576539",
+    "num_agents": 20
+  },
+  "scenarios": {
+    "light_load": {
+      "name": "concurrent_users",
+      "description": "5 concurrent users for 10 seconds",
+      "duration": 10.000048637390137,
+      "total_requests": 561455,
+      "successful_requests": 561455,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "requests_per_second": 56145.22692426938,
+      "avg_response_time": 5.005109844246322e-06,
+      "median_response_time": 4.5299530029296875e-06,
+      "p95_response_time": 7.867813110351562e-06,
+      "errors": []
+    },
+    "medium_load": {
+      "name": "concurrent_users",
+      "description": "20 concurrent users for 15 seconds",
+      "duration": 15.000221729278564,
+      "total_requests": 1079700,
+      "successful_requests": 1079700,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "requests_per_second": 71978.93601082977,
+      "avg_response_time": 4.483261869783323e-06,
+      "median_response_time": 4.5299530029296875e-06,
+      "p95_response_time": 7.152557373046875e-06,
+      "errors": []
+    },
+    "ramp_up": {
+      "name": "ramp_up",
+      "description": "Ramp up to 30 users over 20s, then steady for 10s",
+      "duration": 30.082074880599976,
+      "total_requests": 5521,
+      "successful_requests": 5521,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "requests_per_second": 183.53122322557977,
+      "avg_response_time": 6.639791169777186e-06,
+      "median_response_time": 4.76837158203125e-06,
+      "p95_response_time": 2.4080276489257812e-05,
+      "errors": []
+    },
+    "stress_test": {
+      "name": "stress_test",
+      "description": "Stress test with 50 concurrent users for 20 seconds",
+      "duration": 20.000247955322266,
+      "total_requests": 1448700,
+      "successful_requests": 1448700,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "requests_per_second": 72434.10197894504,
+      "avg_response_time": 4.409693565692534e-06,
+      "median_response_time": 4.5299530029296875e-06,
+      "p95_response_time": 6.67572021484375e-06,
+      "errors": []
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "policy_id": "api_access",
+  "name": "API Access",
+  "description": "External API access",
+  "security_level": "SecurityLevel.INTERNAL",
+  "allowed_principals": [],
+  "forbidden_principals": [],
+  "allowed_actions": [
+    "api_*"
+  ],
+  "forbidden_actions": [],
+  "allowed_ips": [],
+  "forbidden_ips": [],
+  "allowed_hours": [
+    6,
+    22
+  ],
+  "custom_conditions": []
+}
